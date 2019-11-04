@@ -36,7 +36,7 @@ public class Point {
 
     @Override
     public String toString() {
-        return x + " " + y + "\n";
+        return x + " " + y;
     }
 
     public static float calcDist(Point p1, Point p2) {

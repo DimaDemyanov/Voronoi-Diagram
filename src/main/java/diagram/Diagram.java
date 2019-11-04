@@ -1,5 +1,7 @@
 package diagram;
 
+import draw.Drawer;
+
 import java.util.*;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -122,19 +124,6 @@ public class Diagram {
         return new ConvexHull(merge(up, down), upBridge1, upBridge2, downBridge1, downBridge2);
     }
 
-    /*public static Edge findEdgeBetweenTwoPoints(Point p1, Point p2) {
-        Function<Float, Float> func = x -> (p2.x - p1.x) / (p2.y - p1.y) * (x - (p1.x + p2.x) / 2) + (p1.y + p2.y) / 2;
-
-        return new Edge(
-                new Point((p1.x + p2.x) / 2 + 1, func.apply((p1.x + p2.x) / 2 + 1)),
-                new Point((p1.x + p2.x) / 2 - 1, func.apply((p1.y + p2.y) / 2 - 1)),
-                false,
-                false,
-                p1,
-                p2
-        );
-    }*/
-
     public static Edge findEdgeBetweenTwoPoints(Point p1, Point p2) {
 
         Point m = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
@@ -153,51 +142,20 @@ public class Diagram {
     }
 
     public static Map<Point, Cell> makeDiagram(Point[] points) {
-        Arrays.sort(points, (point1, point2) -> Float.compare(point1.x, point2.x));
+        Arrays.sort(points, (point1, point2) -> {
+            int cmpX = Float.compare(point1.x, point2.x);
+            if (cmpX != 0) {
+                return cmpX;
+            } else {
+                return (-1) * Float.compare(point1.y, point2.y);
+            }
+        });
         HashMap<Point, Cell> pointToCell = new HashMap<>();
         for (int i = 0; i < points.length; i++) {
             pointToCell.put(points[i], new Cell());
         }
         return makeDiagramDC(pointToCell, points).cells;
     }
-
-   /* public static Point findIntersection(Edge edge1, Edge edge2) {
-        Edge e1 = edge1.sortEdge();
-        Edge e2 = edge2.sortEdge();
-        if (e1.p2.x < e2.p1.x && e1.p2Done || e2.p2.x < e1.p1.x && e2.p2Done) {
-            return null;
-        }
-
-        boolean isA1Ok = true, isA2Ok = true;
-        float a1 = 0, a2 = 0, b1 = 0, b2 = 0, xa = 0, ya = 0;
-        if(edge1.p1.x - edge1.p2.x != 0)
-            a1 = (edge1.p1.y - edge1.p2.y) / (edge1.p1.x - edge1.p2.x);
-        else
-            isA1Ok = false;
-
-        if(edge1.p1.x - edge1.p2.x != 0)
-            a2 = (edge2.p1.y - edge2.p2.y) / (edge2.p1.x - edge2.p2.x);
-        else
-            isA2Ok = false;
-
-        if(isA1Ok)
-            b1 = edge1.p1.y - a1 * edge1.p1.x;
-
-        if (isA2Ok)
-            b2 = edge2.p1.y - a2 * edge2.p1.x;
-        if(isA1Ok && isA2Ok)
-            xa = (b2 - b1) / (a1 - a2);
-        else
-            if (!isA1Ok)
-                xa = edge1.p1.x;
-            else
-                xa = edge2.p1.x;
-        if(isA1Ok)
-            ya = a1*xa + b1;
-        else
-            ya = a2*xa + b2;
-        return new Point(xa, ya);
-    }*/
 
     public static Point findIntersection(Edge l1, Edge l2) {
 
@@ -224,73 +182,6 @@ public class Diagram {
             return null;
         return new Point(xa, ya);
     }
-
-    /*public static Edge cutEdge(Edge edge, Point p, Point farPoint, boolean isUp) {
-     */
-    /*edge.sortEdgeByY();
-        if (isUp) {
-            if (edge.p2.y >= p.y) {
-                edge.p1 = p;
-                edge.p1Done = true;
-                return edge;
-            }
-        } else {
-            if (edge.p1.y <= p.y) {
-                edge.p2 = p;
-                edge.p2Done = true;
-                return edge;
-            }
-        }
-        if (isUp) {
-            if (!edge.p2Done) {
-                edge.copy(
-                        p,
-                        new Point(p.x + (edge.p2.x - edge.p1.x), p.y + (edge.p2.y - edge.p1.y)),
-                        true,
-                        false,
-                        edge.main1,
-                        edge.main1
-                );
-                return edge;
-            }
-            return null;
-        } else {
-            if (!edge.p1Done) {
-                edge.copy(
-                        new Point(p.x - (edge.p2.x - edge.p1.x), p.y - (edge.p2.y - edge.p1.y)),
-                        p,
-                        false,
-                        true,
-                        edge.main1,
-                        edge.main1
-                );
-                return edge;
-            }
-            return null;
-        }*//*
-        if (!edge.p1Done) {
-            if (!edge.p2Done) {
-                if(Point.calcDist(edge.p1, farPoint) < Point.calcDist(edge.p2, farPoint)) {
-                    edge.p2.x = p.x + edge.p2.x - edge.p1.x;
-                    edge.p2.y = p.y + edge.p2.y - edge.p1.y;
-                    edge.p1 = p;
-                    edge.p1Done = true;
-                } else {
-                    edge.p1.x = p.x + edge.p1.x - edge.p2.x;
-                    edge.p1.y = p.y + edge.p1.y - edge.p2.y;
-                    edge.p2 = p;
-                    edge.p2Done = true;
-                }
-                return edge;
-            }
-            edge.p1 = p;
-            edge.p1Done = true;
-        } else {
-            edge.p2 = p;
-            edge.p2Done = true;
-        }
-        return edge;
-    }*/
 
     public static Point cutEdge(Edge edge, Point p, Point farPoint, boolean isUp) {
         Point result = null;
@@ -377,18 +268,28 @@ public class Diagram {
         }
 
         if (isCell1) {
-//            cell1.deleteEdge(resultEdge);
             Point pointToDelete = cutEdge(resultEdge, resultPoint, farPoint, true);
-//            cell1.addEdge(resultEdge);
-            if (pointToDelete != null) {
-                List<Edge> edgesToRemove = new ArrayList<>();
-                for (Edge e : cell1.edges) {
-                    if (!e.equals(resultEdge) && (e.p1.equals(pointToDelete) || e.p2.equals(pointToDelete)))
-                        edgesToRemove.add(e);
-                }
-                for (Edge edge: edgesToRemove) {
-                    pointToCell.get(edge.main1).edges.remove(edge);
-                    pointToCell.get(edge.main2).edges.remove(edge);
+            LinkedList<Point> pointsToDelete = new LinkedList<>();
+            pointsToDelete.add(pointToDelete);
+            while (!pointsToDelete.isEmpty()) {
+                pointToDelete = pointsToDelete.removeFirst();
+                if (pointToDelete != null) {
+                    List<Edge> edgesToRemove = new ArrayList<>();
+                    for (Edge e : cell1.edges) {
+                        if (!e.equals(resultEdge) && (e.p1.equals(pointToDelete) || e.p2.equals(pointToDelete))) {
+                            if (e.p1.equals(pointToDelete) && e.p2Done) {
+                                pointsToDelete.addLast(e.p2);
+                            }
+                            if (e.p2.equals(pointToDelete) && e.p1Done) {
+                                pointsToDelete.addLast(e.p1);
+                            }
+                            edgesToRemove.add(e);
+                        }
+                    }
+                    for (Edge edge : edgesToRemove) {
+                        pointToCell.get(edge.main1).edges.remove(edge);
+                        pointToCell.get(edge.main2).edges.remove(edge);
+                    }
                 }
             }
             if (resultEdge.main1.equals(u))
@@ -445,6 +346,10 @@ public class Diagram {
         ConvexHull ch = findConvexHull(cellwc1.convexHull, cellwc2.convexHull);
 
         findIntersectionDiagram(ch, pointToCell);
+
+//        Drawer drawer = new Drawer();
+//        drawer.setCells(pointToCell);
+//        drawer.draw();
 
         return new CellsWithConvexHull(pointToCell, ch.points);
     }
