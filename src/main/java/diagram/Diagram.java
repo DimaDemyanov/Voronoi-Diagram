@@ -3,8 +3,8 @@ package diagram;
 import draw.Drawer;
 
 import java.util.*;
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
+
+import static java.lang.Math.*;
 
 public class Diagram {
 
@@ -147,7 +147,7 @@ public class Diagram {
             if (cmpX != 0) {
                 return cmpX;
             } else {
-                return (-1) * Float.compare(point1.y, point2.y);
+                return Float.compare(point1.y, point2.y);
             }
         });
         HashMap<Point, Cell> pointToCell = new HashMap<>();
@@ -158,6 +158,8 @@ public class Diagram {
     }
 
     public static Point findIntersection(Edge l1, Edge l2) {
+
+        float eps = 0.1f;
 
         l1.sortEdge();
         l2.sortEdge();
@@ -171,13 +173,13 @@ public class Diagram {
         float c2 = a2 * l2.p1.x + b2 * l2.p1.y;
 
         float delta = a1 * b2 - a2 * b1;
-        if (delta == 0) return null;
+        if (abs(delta) < 0.0001) return null;
         float xa = (b2 * c1 - b1 * c2) / delta;
         float ya = (a1 * c2 - a2 * c1) / delta;
-        if (l1.p1.x > xa && l1.p1Done ||
-                l1.p2.x < xa && l1.p2Done ||
-                l2.p1.x > xa && l2.p1Done ||
-                l2.p2.x < xa && l2.p2Done
+        if (l1.p1.x > xa+eps && l1.p1Done ||
+                l1.p2.x < xa-eps && l1.p2Done ||
+                l2.p1.x > xa+eps && l2.p1Done ||
+                l2.p2.x < xa-eps && l2.p2Done
         )
             return null;
         return new Point(xa, ya);
@@ -190,13 +192,13 @@ public class Diagram {
                 edge.p2.x = p.x + edge.p2.x - edge.p1.x;
                 edge.p2.y = p.y + edge.p2.y - edge.p1.y;
             }
-            if (edge.p1Done /*&& !edge.p1.equals(p)*/) {
+            if (edge.p1Done) {
                 result = edge.p1;
             }
             edge.p1 = p;
             edge.p1Done = true;
         } else {
-            if (!edge.p1Done  /*&& !edge.p2.equals(p)*/) {
+            if (!edge.p1Done) {
                 edge.p1.x = p.x + edge.p1.x - edge.p2.x;
                 edge.p1.y = p.y + edge.p1.y - edge.p2.y;
             }
@@ -297,9 +299,7 @@ public class Diagram {
             else
                 return new IntersectionResult(resultEdge.main1, w, resultPoint, u,  maxY);
         } else {
-//            cell2.deleteEdge(resultEdge);
             Point pointToDelete = cutEdge(resultEdge, resultPoint, farPoint, true);
-//            cell2.addEdge(resultEdge);
             if (pointToDelete != null) {
                 List<Edge> edgesToRemove = new ArrayList<>();
                 for (Edge e : cell2.edges) {

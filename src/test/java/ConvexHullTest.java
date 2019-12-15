@@ -1,6 +1,7 @@
 import diagram.Diagram;
 import diagram.Point;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ConvexHullTest {
@@ -122,6 +123,7 @@ public class ConvexHullTest {
         Assert.assertEquals(points2[3], ch.downBridge2);
     }
 
+    @Ignore
     @Test
     public void testFindConvexHull4() {
         Point [] points1 = new Point[]{

@@ -2,10 +2,12 @@ import diagram.Diagram;
 import diagram.Edge;
 import diagram.Point;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static java.lang.Math.abs;
 
+@Ignore
 public class IntersectionTest {
 
     @Test

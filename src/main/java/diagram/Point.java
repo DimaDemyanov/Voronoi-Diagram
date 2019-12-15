@@ -8,10 +8,18 @@ public class Point {
 
     public float x;
     public float y;
+    public int index;
 
     public Point(float x, float y) {
         this.x = x;
         this.y = y;
+        this.index = -1;
+    }
+
+    public Point(float x, float y, int index) {
+        this.x = x;
+        this.y = y;
+        this.index = index;
     }
 
     @Override
