@@ -4,8 +4,10 @@ import draw.Drawer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
@@ -22,11 +24,15 @@ public class Main {
         Point [] points = reader.readAllPoints();
         // Drawer drawer = new Drawer();
         Map<Point, Cell> cells = Diagram.makeDiagram(points);
+        Set<Edge> edgesDone = new HashSet<>();
         for (int i = 0; i < points.length; i++) {
             LinkedList<Edge> edges = cells.get(points[i]).edges;
             // System.out.println(edges.size());
             for (Edge e: edges) {
-                System.out.println(e.main1.index + " " + e.main2.index + " " + (e.p1Done ? 1 : 0) + " " + e.p1 + " " + e.p2 + " " + (e.p2Done ? 1 : 0));
+                if(!edgesDone.contains(e)) {
+                    edgesDone.add(e);
+                    System.out.println(e.main1.index + " " + e.main2.index + " " + (e.p1Done ? 1 : 0) + " " + e.p1 + " " + e.p2 + " " + (e.p2Done ? 1 : 0));
+                }
             }
         }
         // drawer.setCells(cells);
