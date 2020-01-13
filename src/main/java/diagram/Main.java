@@ -1,7 +1,5 @@
 package diagram;
 
-import draw.Drawer;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
@@ -14,7 +12,7 @@ public class Main {
         // Main main = new Main();
         // ClassLoader classLoader = main.getClass().getClassLoader();
         File file = null;
-        if (args.length == 1 && (file = new File(args[0])).exists()) {
+        if (args.length == 1 && (file = new File( args[0])).exists()) {
             ;
         } else {
             System.out.println("Cannot open file");

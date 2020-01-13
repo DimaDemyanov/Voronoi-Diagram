@@ -16,7 +16,7 @@ public class PointReader {
         int n = sc.nextInt();
         Point[] points = new Point[n];
         for (int i = 0; i < n; i++) {
-            points[i] = new Point(sc.nextFloat(), sc.nextFloat(), i);
+            points[i] = new Point(sc.nextDouble(), sc.nextDouble(), i);
         }
         return points;
     }
