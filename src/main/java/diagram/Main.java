@@ -1,5 +1,7 @@
 package diagram;
 
+import draw.Drawer;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
@@ -20,7 +22,7 @@ public class Main {
         }
         PointReader reader = new PointReader(file);
         Point [] points = reader.readAllPoints();
-        // Drawer drawer = new Drawer();
+//        Drawer drawer = new Drawer();
         Map<Point, Cell> cells = Diagram.makeDiagram(points);
         Set<Edge> edgesDone = new HashSet<>();
         for (int i = 0; i < points.length; i++) {
@@ -33,7 +35,7 @@ public class Main {
                 }
             }
         }
-        // drawer.setCells(cells);
-        // drawer.draw();
+//        drawer.setCells(cells);
+//        drawer.draw();
     }
 }

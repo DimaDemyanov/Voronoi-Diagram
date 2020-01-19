@@ -4,19 +4,19 @@ import java.util.Objects;
 
 public class Point {
 
-    public static final double EPS = 0.01f;
+    public static final float EPS = 0.00000000001f;
 
-    public double x;
-    public double y;
+    public float x;
+    public float y;
     public int index;
 
-    public Point(double x, double y) {
+    public Point(float x, float y) {
         this.x = x;
         this.y = y;
         this.index = -1;
     }
 
-    public Point(double x, double y, int index) {
+    public Point(float x, float y, int index) {
         this.x = x;
         this.y = y;
         this.index = index;
@@ -27,8 +27,8 @@ public class Point {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Point point = (Point) o;
-        return Double.compare(point.x, x) == 0 &&
-                Double.compare(point.y, y) == 0;
+        return Float.compare(point.x, x) == 0 &&
+                Float.compare(point.y, y) == 0;
     }
 
     public boolean likeEquals(Point p) {
@@ -47,7 +47,7 @@ public class Point {
         return x + " " + y;
     }
 
-    public static double calcDist(Point p1, Point p2) {
-        return (double)Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+    public static float calcDist(Point p1, Point p2) {
+        return (float)Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
     }
 }
