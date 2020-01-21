@@ -17,6 +17,11 @@ public class Edge {
                 Objects.equals(p2, edge.p2);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(main1, main2);
+    }
+
     public Edge(Point p1, Point p2, boolean p1Done, boolean p2Done, Point main1, Point main2) {
         this.p1 = p1;
         this.p2 = p2;

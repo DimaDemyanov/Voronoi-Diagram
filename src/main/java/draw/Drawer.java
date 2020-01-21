@@ -12,7 +12,7 @@ public class Drawer extends JComponent{
 
     private static int WIDTH = 1024;
     private static int HEIGHT = 800;
-    private static int ONE = 50;
+    private static int ONE = 10;
 
     Map<Point, Cell> cells;
 
@@ -32,7 +32,7 @@ public class Drawer extends JComponent{
     {
         Graphics2D g2 = (Graphics2D) g;
         cells.forEach((point, cell) -> {
-            g2.drawOval((int)(point.x * ONE) + WIDTH / 2, HEIGHT - ((int)(point.y * ONE) + HEIGHT/2), 5, 5);
+            g2.drawOval((int)(point.x * ONE - 2) + WIDTH / 2, HEIGHT - ((int)(point.y * ONE + 2) + HEIGHT/2), 4, 4);
             cell.edges.forEach(edge -> {
                 g2.drawLine((int)(edge.p1.x * ONE) + WIDTH / 2, HEIGHT - ((int)(edge.p1.y * ONE) + HEIGHT / 2),
                         (int)(edge.p2.x * ONE) + WIDTH / 2, HEIGHT - ((int)(edge.p2.y * ONE) + HEIGHT / 2));

@@ -8,7 +8,7 @@ import static java.lang.Math.*;
 
 public class Diagram {
 
-    public final static int LENGTH = 100;
+    public final static int LENGTH = 1000;
 
     public static class ConvexHull {
         public Point[] points;
@@ -31,14 +31,28 @@ public class Diagram {
         Point p2;
         Point lastPoint;
         Point lastRemoved;
-        float maxY;
+        double maxY;
 
-        public IntersectionResult(Point p1, Point p2, Point lastPoint, Point lastRemoved, float maxY) {
+        public IntersectionResult(Point p1, Point p2, Point lastPoint, Point lastRemoved, double maxY) {
             this.p1 = p1;
             this.p2 = p2;
             this.lastPoint = lastPoint;
             this.lastRemoved = lastRemoved;
             this.maxY = maxY;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            IntersectionResult that = (IntersectionResult) o;
+            return Objects.equals(p1, that.p1) &&
+                    Objects.equals(p2, that.p2);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(p1, p2);
         }
     }
 
@@ -47,7 +61,7 @@ public class Diagram {
     }
 
     static boolean ccw(Point a, Point b, Point c) {
-        return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y) >= 0;
+        return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y) > 0;
     }
 
     public static Point[] merge(LinkedList<Point> l, LinkedList<Point> r) {
@@ -129,13 +143,12 @@ public class Diagram {
     public static Edge findEdgeBetweenTwoPoints(Point p1, Point p2) {
 
         Point m = new Point(((p1.x + p2.x) / 2), ((p1.y + p2.y) / 2));
-        float l =  (float)sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2));
-        float cos = LENGTH * ((p2.x - p1.x) / l);
-        float sin = LENGTH * ((p2.y - p1.y) / l);
+        double cos = /*LENGTH * */(p2.x - p1.x);
+        double sin = /*LENGTH * */(p2.y - p1.y);
 
         return new Edge(
-                new Point((m.x - sin / 2), (m.y + cos / 2)),
-                new Point((m.x + sin / 2), (m.y - cos / 2)),
+                new Point(m.x - sin, m.y + cos),
+                new Point(m.x + sin, m.y - cos),
                 false,
                 false,
                 p1,
@@ -145,11 +158,11 @@ public class Diagram {
 
     public static Map<Point, Cell> makeDiagram(Point[] points) {
         Arrays.sort(points, (point1, point2) -> {
-            int cmpX = Float.compare(point1.x, point2.x);
+            int cmpX = Double.compare(point1.x, point2.x);
             if (cmpX != 0) {
                 return cmpX;
             } else {
-                return Float.compare(point1.y, point2.y);
+                return Double.compare(point1.y, point2.y);
             }
         });
         HashMap<Point, Cell> pointToCell = new HashMap<>();
@@ -161,28 +174,28 @@ public class Diagram {
 
     public static Point findIntersection(Edge l1, Edge l2) {
 
-        float eps = 0.0000000001f;
+        double eps = Point.EPS;
 
         l1.sortEdge();
         l2.sortEdge();
 
-        float a1 = l1.p2.y - l1.p1.y;
-        float b1 = l1.p1.x - l1.p2.x;
-        float c1 = a1 * l1.p1.x + b1 * l1.p1.y;
+        double a1 = l1.p2.y - l1.p1.y;
+        double b1 = l1.p1.x - l1.p2.x;
+        double c1 = a1 * l1.p1.x + b1 * l1.p1.y;
 
-        float a2 = l2.p2.y - l2.p1.y;
-        float b2 = l2.p1.x - l2.p2.x;
-        float c2 = a2 * l2.p1.x + b2 * l2.p1.y;
+        double a2 = l2.p2.y - l2.p1.y;
+        double b2 = l2.p1.x - l2.p2.x;
+        double c2 = a2 * l2.p1.x + b2 * l2.p1.y;
 
-        float delta = a1 * b2 - a2 * b1;
+        double delta = a1 * b2 - a2 * b1;
         if (abs(delta) < eps)
             return null;
-        float xa = ((b2 * c1 - b1 * c2) / delta);
-        float ya = ((a1 * c2 - a2 * c1) / delta);
-        if (l1.p1.x > xa/*+eps*/ && l1.p1Done ||
-                l1.p2.x < xa/*-eps*/ && l1.p2Done ||
-                l2.p1.x > xa/*+eps*/ && l2.p1Done ||
-                l2.p2.x < xa/*-eps*/ && l2.p2Done
+        double xa = ((b2 * c1 - b1 * c2) / delta);
+        double ya = ((a1 * c2 - a2 * c1) / delta);
+        if (l1.p1.x > xa + eps && l1.p1Done ||
+                l1.p2.x < xa - eps && l1.p2Done ||
+                l2.p1.x > xa + eps && l2.p1Done ||
+                l2.p2.x < xa - eps && l2.p2Done
         )
             return null;
         return new Point(xa, ya);
@@ -190,7 +203,7 @@ public class Diagram {
 
     public static Point cutEdge(Edge edge, Point p, Point farPoint, boolean isUp) {
         Point result = null;
-        if(Point.calcDist(edge.startP1, farPoint) < Point.calcDist(edge.startP2, farPoint)) {
+        if (Point.calcDist(edge.startP1, farPoint) < Point.calcDist(edge.startP2, farPoint)) {
             if (!edge.p2Done) {
                 edge.p2.x = (p.x + edge.p2.x - edge.p1.x);
                 edge.p2.y = (p.y + edge.p2.y - edge.p1.y);
@@ -214,27 +227,29 @@ public class Diagram {
         return result;
     }
 
-    public static IntersectionResult intersectOnce(float limitY, Point u, Point w, Map<Point, Cell> pointToCell, Point lastPoint, Point lastRemoved, HashSet<Edge> edgesDone) {
+    public static IntersectionResult intersectOnce(double limitY, Point u, Point w, Map<Point, Cell> pointToCell, Point lastPoint, Point lastRemoved, HashSet<Edge> edgesDone, HashSet<IntersectionResult> pointsResulted) {
         Edge l = findEdgeBetweenTwoPoints(u, w);
         if (lastPoint != null) {
             cutEdge(l, lastPoint, lastRemoved, false);
         }
         Cell cell1 = pointToCell.get(u);
         Cell cell2 = pointToCell.get(w);
-        if (limitY == Float.NEGATIVE_INFINITY) {
+        if (limitY == Double.NEGATIVE_INFINITY) {
             cell1.addEdge(l);
             cell2.addEdge(l);
             edgesDone.add(l);
             return null;
         }
         boolean isCell1 = true;
-        float maxY = Float.NEGATIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
         Edge resultEdge = null;
         Point resultPoint = null;
         for (Edge e : cell1.edges) {
             if (edgesDone.contains(e)) continue;
             Point intersection = findIntersection(e, l);
-            if (intersection != null && intersection.y > maxY && intersection.y <= limitY) {
+            if (intersection != null && intersection.y > maxY && intersection.y <= limitY
+                    && !(pointsResulted.contains(new IntersectionResult(e.p1, e.p2, null, null, 0)))
+                    && !(pointsResulted.contains(new IntersectionResult(e.p2, e.p1, null, null, 0)))) {
                 maxY = intersection.y;
                 resultEdge = e;
                 resultPoint = intersection;
@@ -243,7 +258,9 @@ public class Diagram {
         for (Edge e : cell2.edges) {
             if (edgesDone.contains(e)) continue;
             Point intersection = findIntersection(e, l);
-            if (intersection != null && intersection.y > maxY && intersection.y <= limitY) {
+            if (intersection != null && intersection.y > maxY && intersection.y <= limitY &&
+                    !(pointsResulted.contains(new IntersectionResult(e.p1, e.p2, null, null, 0)))
+                    && !(pointsResulted.contains(new IntersectionResult(e.p2, e.p1, null, null, 0)))) {
                 maxY = intersection.y;
                 resultEdge = e;
                 isCell1 = false;
@@ -251,10 +268,13 @@ public class Diagram {
             }
         }
         Point farPoint;
-        if (resultEdge == null){
+        if (resultEdge == null) {
+            cell1.addEdge(l);
+            cell2.addEdge(l);
+            edgesDone.add(l);
             return null;
         }
-        if (resultEdge.main1.equals(u) || resultEdge.main1.equals(w) ) {
+        if (resultEdge.main1.equals(u) || resultEdge.main1.equals(w)) {
             farPoint = resultEdge.main2;
         } else {
             farPoint = resultEdge.main1;
@@ -262,11 +282,13 @@ public class Diagram {
         cutEdge(l, resultPoint, farPoint, true);
         cell1.addEdge(l);
         cell2.addEdge(l);
-        edgesDone.clear();
+        if (maxY != limitY) {
+            edgesDone.clear();
+        }
         edgesDone.add(l);
         edgesDone.add(resultEdge);
 
-        if (resultEdge.main1.equals(u) || resultEdge.main2.equals(u) ) {
+        if (resultEdge.main1.equals(u) || resultEdge.main2.equals(u)) {
             farPoint = w;
         } else {
             farPoint = u;
@@ -281,7 +303,7 @@ public class Diagram {
                 if (pointToDelete != null) {
                     List<Edge> edgesToRemove = new ArrayList<>();
                     for (Edge e : cell1.edges) {
-                        if (!e.equals(resultEdge) && (e.p1.equals(pointToDelete) || e.p2.equals(pointToDelete))) {
+                        if (!e.equals(resultEdge) && (e.p1 == pointToDelete || e.p2 == pointToDelete)) {
                             if (e.p1.equals(pointToDelete) && e.p2Done) {
                                 pointsToDelete.addLast(e.p2);
                             }
@@ -300,22 +322,34 @@ public class Diagram {
             if (resultEdge.main1.equals(u))
                 return new IntersectionResult(resultEdge.main2, w, resultPoint, u, maxY);
             else
-                return new IntersectionResult(resultEdge.main1, w, resultPoint, u,  maxY);
+                return new IntersectionResult(resultEdge.main1, w, resultPoint, u, maxY);
         } else {
             Point pointToDelete = cutEdge(resultEdge, resultPoint, farPoint, true);
-            if (pointToDelete != null) {
-                List<Edge> edgesToRemove = new ArrayList<>();
-                for (Edge e : cell2.edges) {
-                    if (!e.equals(resultEdge) && (e.p1.equals(pointToDelete) || e.p2.equals(pointToDelete)))
-                        edgesToRemove.add(e);
-                }
-                for (Edge edge: edgesToRemove) {
-                    pointToCell.get(edge.main1).edges.remove(edge);
-                    pointToCell.get(edge.main2).edges.remove(edge);
+            LinkedList<Point> pointsToDelete = new LinkedList<>();
+            pointsToDelete.add(pointToDelete);
+            while (!pointsToDelete.isEmpty()) {
+                pointToDelete = pointsToDelete.removeFirst();
+                if (pointToDelete != null) {
+                    List<Edge> edgesToRemove = new ArrayList<>();
+                    for (Edge e : cell2.edges) {
+                        if (!e.equals(resultEdge) && (e.p1 == pointToDelete || e.p2 == pointToDelete)) {
+                            if (e.p1.equals(pointToDelete) && e.p2Done) {
+                                pointsToDelete.addLast(e.p2);
+                            }
+                            if (e.p2.equals(pointToDelete) && e.p1Done) {
+                                pointsToDelete.addLast(e.p1);
+                            }
+                            edgesToRemove.add(e);
+                        }
+                    }
+                    for (Edge edge : edgesToRemove) {
+                        pointToCell.get(edge.main1).edges.remove(edge);
+                        pointToCell.get(edge.main2).edges.remove(edge);
+                    }
                 }
             }
             if (resultEdge.main1.equals(w))
-                return new IntersectionResult(u, resultEdge.main2, resultPoint, w,  maxY);
+                return new IntersectionResult(u, resultEdge.main2, resultPoint, w, maxY);
             else
                 return new IntersectionResult(u, resultEdge.main1, resultPoint, w, maxY);
         }
@@ -323,36 +357,44 @@ public class Diagram {
 
     public static void findIntersectionDiagram(ConvexHull ch, HashMap<Point, Cell> pointToCell) {
         HashSet<Edge> edgesDone = new HashSet<>();
-        IntersectionResult result = new IntersectionResult(ch.upBridge1, ch.upBridge2, null, null, Float.MAX_VALUE);
+        HashSet<IntersectionResult> pointsResulted = new HashSet<>();
+
+        if (ch.upBridge1.x == ch.upBridge2.x && ch.upBridge1.x == ch.downBridge1.x && ch.upBridge1.x == ch.downBridge2.x) {
+            List<Point> bridges = Arrays.asList(ch.upBridge1, ch.upBridge2, ch.downBridge1, ch.downBridge2);
+            bridges.sort(Comparator.comparingDouble(p -> p.y));
+            ch.upBridge1 = bridges.get(1);
+            ch.upBridge2 = bridges.get(2);
+            ch.downBridge1 = bridges.get(0);
+            ch.downBridge2 = bridges.get(3);
+        }
+
+        IntersectionResult result = new IntersectionResult(ch.upBridge1, ch.upBridge2, null, null, Double.MAX_VALUE);
+        pointsResulted.add(result);
+//        int i = 0;
         while (result != null && (!result.p1.likeEquals(ch.downBridge1) || !result.p2.likeEquals(ch.downBridge2)) &&
                 (!result.p1.likeEquals(ch.downBridge2) || !result.p2.likeEquals(ch.downBridge1))) {
-            result = intersectOnce(result.maxY, result.p1, result.p2 , pointToCell, result.lastPoint, result.lastRemoved, edgesDone);
+            result = intersectOnce(result.maxY, result.p1, result.p2, pointToCell, result.lastPoint, result.lastRemoved, edgesDone, pointsResulted);
+            pointsResulted.add(result);
+//            Drawer drawer = new Drawer();
+//            drawer.setCells(pointToCell);
+//            drawer.draw();
+//            if (i++ >= 2) break;
         }
         if (result != null)
-            intersectOnce(Float.NEGATIVE_INFINITY, result.p1, result.p2 , pointToCell, result.lastPoint, result.lastRemoved, edgesDone);
+            intersectOnce(Double.NEGATIVE_INFINITY, result.p1, result.p2, pointToCell, result.lastPoint, result.lastRemoved, edgesDone, pointsResulted);
     }
 
     public static CellsWithConvexHull makeDiagramDC(HashMap<Point, Cell> pointToCell, Point[] points) {
         if (points.length == 1)
             return new CellsWithConvexHull(pointToCell, new Point[]{points[0]});
 
-        if (points.length == 2) {
-            Edge edge = findEdgeBetweenTwoPoints(points[0], points[1]);
-            pointToCell.get(points[0]).addEdge(edge);
-            pointToCell.get(points[1]).addEdge(edge);
-            return new CellsWithConvexHull(pointToCell, new Point[]{points[0], points[1]});
-        }
-
-        CellsWithConvexHull cellwc1 = makeDiagramDC(pointToCell, Arrays.copyOfRange(points, 0, (points.length + 1)/ 2));
+        CellsWithConvexHull cellwc1 = makeDiagramDC(pointToCell, Arrays.copyOfRange(points, 0, (points.length + 1) / 2));
         CellsWithConvexHull cellwc2 = makeDiagramDC(pointToCell, Arrays.copyOfRange(points, (points.length + 1) / 2, points.length));
 
         ConvexHull ch = findConvexHull(cellwc1.convexHull, cellwc2.convexHull);
 
         findIntersectionDiagram(ch, pointToCell);
 
-//        Drawer drawer = new Drawer();
-//        drawer.setCells(pointToCell);
-//        drawer.draw();
 
         return new CellsWithConvexHull(pointToCell, ch.points);
     }
