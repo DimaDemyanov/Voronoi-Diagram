@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class Point {
 
-    public static final double EPS = 0.00000001f;
+    public static final double EPS = 0.0000001f;
 
     public double x;
     public double y;
