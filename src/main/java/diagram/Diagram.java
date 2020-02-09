@@ -250,8 +250,8 @@ public class Diagram {
         Edge resultEdge = null;
         Point resultPoint = null;
         for (Edge e : cell1.edges) {
-            if (edgesDone.contains(e)) continue;
             Point intersection = findIntersection(e, l);
+            if (intersection == null || edgesDone.contains(e)&& intersection.y >= limitY - Point.EPS) continue;
             if (intersection != null && intersection.y > maxY && intersection.y <= limitY + Point.EPS
                     && !(pointsResulted.contains(new IntersectionResult(e.p1, e.p2, null, null, 0)))
                     && !(pointsResulted.contains(new IntersectionResult(e.p2, e.p1, null, null, 0)))) {
@@ -261,8 +261,8 @@ public class Diagram {
             }
         }
         for (Edge e : cell2.edges) {
-            if (edgesDone.contains(e)) continue;
             Point intersection = findIntersection(e, l);
+            if (intersection == null || edgesDone.contains(e)&& intersection.y >= limitY - Point.EPS) continue;
             if (intersection != null && intersection.y > maxY && intersection.y <= limitY + Point.EPS &&
                     !(pointsResulted.contains(new IntersectionResult(e.p1, e.p2, null, null, 0)))
                     && !(pointsResulted.contains(new IntersectionResult(e.p2, e.p1, null, null, 0)))) {
