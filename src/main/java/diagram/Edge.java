@@ -29,8 +29,8 @@ public class Edge {
         this.p2Done = p2Done;
         this.main1 = main1;
         this.main2 = main2;
-        this.startP1 = new Point(p1.x, p1.y);
-        this.startP2 = new Point(p2.x, p2.y);
+        this.startP1 = new Point(p1.x, p1.y, p1.index);
+        this.startP2 = new Point(p2.x, p2.y, p2.index);
     }
 
     public void sortEdge() {
